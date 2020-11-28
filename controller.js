@@ -49,7 +49,7 @@ function step(timestamp) {
   if (navigator.getGamepads().length > 0) {
     let gp = navigator.getGamepads()[0]
     console.log(gp.buttons[0].pressed)
-    amplitude.gain.value = 1 * gp.buttons[7].value;
+    amplitude.gain.value = 1 - gp.buttons[7].value;
     oscillator.frequency.value = 440 * (1 + gp.buttons[6].value);
   }
   window.requestAnimationFrame(step);
