@@ -1,58 +1,38 @@
-import * as View from "./view.js";
+var amplitude;
+var oscillator;
 
-View.Init();
-console.log(navigator.getGamepads(0));
+function Start() {
+  var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
 
-var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+  navigator.getGamepads()
 
-// async function playNote(frequency, duration) {
-//   // create Oscillator node
-//   var oscillator = audioCtx.createOscillator();
-//
-//   oscillator.type = 'triangle';
-//   oscillator.frequency.value = frequency; // value in hertz
-//   oscillator.connect(audioCtx.destination);
-//   oscillator.start();
-//   await sleep(duration);
-//   oscillator.frequency.value *=2;
-//   await sleep(duration);
-//   oscillator.stop();
-// }
+  // create nodes
+  amplitude = audioCtx.createGain();
+  oscillator = audioCtx.createOscillator();
 
-// playNote(440, 100);
+  // set params
+  oscillator.frequency.value = 440;
+  oscillator.type = 'triangle';
+  amplitude.gain.value = 0;
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  // connect graph
+  oscillator.connect(amplitude);
+  amplitude.connect(audioCtx.destination);
+
+  // start
+  oscillator.start();
+
+  // do update
+  window.requestAnimationFrame(Update);
 }
 
-navigator.getGamepads()
-
-// create nodes
-var amplitude = audioCtx.createGain();
-var oscillator = audioCtx.createOscillator();
-
-// set params
-oscillator.frequency.value = 440;
-oscillator.type = 'triangle';
-amplitude.gain.value = 0;
-
-// connect graph
-oscillator.connect(amplitude);
-amplitude.connect(audioCtx.destination);
-
-// start
-oscillator.start();
-
-
-function step(timestamp) {
+function Update(timestamp) {
   // const delta = timestamp - start;
   if (navigator.getGamepads().length > 0) {
     let gp = navigator.getGamepads()[0]
-    console.log(gp.buttons[0].pressed)
+    // console.log(gp.buttons[0].pressed)
     amplitude.gain.value = 1 - gp.buttons[7].value;
     oscillator.frequency.value = 440 * (1 + gp.buttons[6].value);
   }
-  window.requestAnimationFrame(step);
+  window.requestAnimationFrame(Update);
 }
-
-window.requestAnimationFrame(step);
